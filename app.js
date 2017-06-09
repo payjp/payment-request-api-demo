@@ -11,7 +11,6 @@ app.get('/', function (req, res) {
 })
 
 app.post('/pay', function (req, res) {
-  console.log(req.body);
   const query = {
     amount: 30800, // 本来はリクエストの中身から取得,
     currency: 'jpy',
