@@ -20,7 +20,11 @@
 <body>
 <button id="start">Pay with Payment Request API</button>
 <div id="result"></div>
+<script type="text/javascript" src="https://js.pay.jp/"></script>
 <script>
+// payjpjs のセットアップ
+Payjp.setPublicKey("pk_test_0383a1b8f91e8a6e3ea0e2a9");
+
 function onBuyClicked() {
   if (!window.PaymentRequest) {
     // PaymentRequest API is not available. Forwarding to
@@ -66,29 +70,25 @@ function onBuyClicked() {
   // 3. 決済処理をおこなう
   .then(result => {
     // POST the payment information to the server
-    return fetch('/pay', {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(result.toJSON())
-    }).then(response => {
-      // 4. Display payment results
-      // 4. 決済結果を表示する
-      if (response.status === 200) {
-        // Payment successful
-        document.getElementById('result').innerText = '決済が完了しました！';
+
+    const card = {
+        number: result.details.cardNumber,
+        exp_month: result.details.expiryMonth,
+        exp_year: result.details.expiryYear,
+        cvc: result.details.cardSecurityCode,
+    };
+
+    Payjp.createToken(card, function(status, response) {
+      if (status == 200) {
+        document.getElementById('result').innerText = `PAY.JP Token: ${response.id}`;
         return result.complete('success');
       } else {
-        // Payment failure
+        // handle error like displaying error message.
         document.getElementById('result').innerText = 'なんか失敗しました';
         return result.complete('fail');
-      }
-    }).catch(() => {
-      document.getElementById('result').innerText = 'なんか失敗しました';
-      return result.complete('fail');
+      };
     });
+
   });
 }
 

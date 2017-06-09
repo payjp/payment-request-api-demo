@@ -10,7 +10,7 @@ app.get('/', function (req, res) {
   res.render('index');
 })
 
-app.post('/pay', function (req, res) {
+app.post('/pay-with-card', function (req, res) {
   const query = {
     amount: 30800, // 本来はリクエストの中身から取得,
     currency: 'jpy',
@@ -20,6 +20,21 @@ app.post('/pay', function (req, res) {
       exp_year: req.body.details.expiryYear,
       cvc: req.body.details.cardSecurityCode
     }
+  };
+  payjp.charges.create(query).then((result) => {
+    // サーバー側での決済成功時に必要な処理 etc
+    res.json({success: true});
+  }).catch((err) => {
+     console.error(err);
+     res.json({success: false});
+  });
+})
+
+app.post('/pay-with-token', function (req, res) {
+  const query = {
+    amount: 30800, // 本来はリクエストの中身から取得,
+    currency: 'jpy',
+    card: req.body.token
   };
   payjp.charges.create(query).then((result) => {
     // サーバー側での決済成功時に必要な処理 etc
